@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Carga</title>
+    
+    <!-- Librerías Externas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --panel-bg: #ffffff;
+            --sidebar-bg: #2c3e50;
+            --header-color: #34495e;
+            --accent-color: #3498db;
+            --text-color: #555;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            overflow: hidden; /* Evita el scroll del body */
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* --- Barra Lateral (Sidebar) --- */
+        .sidebar {
+            width: 60px;
+            background-color: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            color: white;
+        }
+        .sidebar .icon {
+            font-size: 24px;
+            margin-bottom: 30px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .sidebar .icon:hover, .sidebar .icon.active {
+            opacity: 1;
+        }
+
+        /* --- Contenido Principal --- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .main-header {
+            padding: 15px 30px;
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .main-header h1 {
+            margin: 0;
+            font-size: 22px;
+            color: var(--header-color);
+        }
+        .file-input-wrapper {
+            position: relative;
+        }
+        .btn-file-input {
+            background-color: var(--accent-color);
+            color: white; padding: 10px 20px; border-radius: 5px;
+            border: none; font-size: 14px; cursor: pointer;
+        }
+        .upload-status { font-weight: bold; font-size: 14px; }
+        .status-ok { color: #28a745; }
+        .status-pending { color: #dc3545; }
+
+        /* --- Grid de 3 Columnas --- */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 3fr 1.5fr; /* Proporción de columnas */
+            gap: 20px;
+            padding: 20px;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .panel-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: bold;
+            color: var(--header-color);
+        }
+        .panel-content {
+            padding: 15px;
+            overflow-y: auto; /* Permite scroll solo en el contenido */
+        }
+        .placeholder {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #999;
+            text-align: center;
+        }
+
+        /* --- Tarjetas de Envío (Columna Izquierda) --- */
+        .shipment-card {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--border-color);
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .shipment-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .shipment-card.active {
+            border-left-color: #e67e22;
+            background-color: #f8f9fa;
+        }
+        .shipment-card h4 { margin: 0 0 5px 0; color: var(--header-color); }
+        .shipment-card p { margin: 0; font-size: 14px; }
+
+        /* --- Tabla de Detalles y Resumen --- */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e7e7e7; }
+        th { font-size: 12px; text-transform: uppercase; color: #888; }
+        
+        .summary-card { padding: 20px; background-color: #f8f9fa; border-radius: 8px; }
+        .summary-item { display: flex; justify-content: space-between; align-items: center; font-size: 16px; margin-bottom: 15px; }
+        .summary-item .label { font-weight: bold; color: var(--header-color); }
+        .summary-item .value { font-size: 20px; color: var(--accent-color); }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="icon active"><i class="fas fa-home"></i></div>
+            <div class="icon"><i class="fas fa-calendar-alt"></i></div>
+            <div class="icon"><i class="fas fa-truck"></i></div>
+            <div class="icon"><i class="fas fa-chart-bar"></i></div>
+            <div class="icon"><i class="fas fa-users"></i></div>
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <h1>Dashboard de Embarques</h1>
+                <div class="file-input-wrapper">
+                    <button class="btn-file-input">Cargar Programa</button>
+                    <input type="file" id="schedule-file-input" accept=".xlsx, .xls">
+                </div>
+                <span id="upload-status" class="upload-status"></span>
+                <span id="master-status" class="upload-status"></span>
+            </header>
+
+            <div class="content-grid">
+                <!-- Columna 1: Lista de Envíos -->
+                <div class="panel" id="shipment-list-panel">
+                    <div class="panel-header">Planes de Envío</div>
+                    <div class="panel-content" id="shipment-list-content">
+                        <div class="placeholder">Cargue un archivo de programa para ver los envíos.</div>
+                    </div>
+                </div>
+
+                <!-- Columna 2: Detalles del Envío -->
+                <div class="panel" id="details-panel">
+                    <div class="panel-header">Detalles del Envío Seleccionado</div>
+                    <div class="panel-content" id="details-content">
+                        <div class="placeholder">Seleccione un envío de la lista para ver los detalles.</div>
+                    </div>
+                </div>
+
+                <!-- Columna 3: Resumen -->
+                <div class="panel" id="summary-panel">
+                    <div class="panel-header">Resumen</div>
+                    <div class="panel-content" id="summary-content">
+                         <div class="placeholder">Seleccione un envío para ver su resumen.</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Referencias a Elementos del DOM ---
+        const scheduleFileInput = document.getElementById('schedule-file-input');
+        const uploadStatus = document.getElementById('upload-status');
+        const masterStatus = document.getElementById('master-status');
+        const shipmentListContent = document.getElementById('shipment-list-content');
+        const detailsContent = document.getElementById('details-content');
+        const summaryContent = document.getElementById('summary-content');
+
+        // --- Almacenes de Datos ---
+        let masterSnpMap = null;
+        let groupedShipments = {}; // Almacena los envíos agrupados
+
+        // --- Lógica Principal ---
+        async function initializeApp() {
+            masterStatus.textContent = '(Cargando Maestro...)';
+            try {
+                const response = await fetch('MASTER PT.csv');
+                if (!response.ok) throw new Error(`Error ${response.status}`);
+                const csvString = await response.text();
+                masterSnpMap = createSnpMapFromCsvString(csvString);
+                masterStatus.textContent = `(Maestro OK ✔)`;
+                masterStatus.className = 'upload-status status-ok';
+            } catch (error) {
+                masterStatus.textContent = `(Error Maestro ❌)`;
+                masterStatus.className = 'upload-status status-pending';
+            }
+        }
+        
+        scheduleFileInput.addEventListener('change', handleScheduleFile);
+
+        async function handleScheduleFile(e) {
+            const file = e.target.files[0];
+            if (!file || !masterSnpMap) {
+                if(!masterSnpMap) alert("Error: El archivo maestro de partes no pudo ser cargado.");
+                return;
+            }
+
+            uploadStatus.textContent = '(Procesando...)';
+            try {
+                const data = await file.arrayBuffer();
+                const workbook = XLSX.read(data, { type: 'array', cellDates: true, raw: true });
+                const scheduleData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+
+                groupedShipments = groupShipments(scheduleData);
+                renderShipmentList(groupedShipments);
+
+                uploadStatus.textContent = 'Programa Cargado ✔';
+                uploadStatus.className = 'upload-status status-ok';
+                detailsContent.innerHTML = `<div class="placeholder">Seleccione un envío de la lista.</div>`;
+                summaryContent.innerHTML = `<div class="placeholder">Seleccione un envío de la lista.</div>`;
+
+            } catch (error) {
+                uploadStatus.textContent = `Error: ${error.message}`;
+                uploadStatus.className = 'upload-status status-pending';
+            } finally {
+                e.target.value = '';
+            }
+        }
+        
+        function createSnpMapFromCsvString(csvString) {
+            const snpMap = new Map();
+            const workbook = XLSX.read(csvString.trim(), { type: 'string', raw: true });
+            const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+            
+            jsonData.forEach(row => {
+                const partId = row['ID PARTE ALTERNO'] ? String(row['ID PARTE ALTERNO']).trim() : null;
+                const destId = row['ID DESTINO'] ? String(row['ID DESTINO']).trim() : null;
+                const snp = parseInt(row['SNP'], 10);
+                if (partId && destId && !isNaN(snp)) {
+                    snpMap.set(`${partId}-${destId}`, snp);
+                }
+            });
+            return snpMap;
+        }
+
+        function groupShipments(data) {
+            const shipments = {};
+            data.forEach(row => {
+                const fechaProg = row['FECHA PROGR'];
+                const destino = String(row['ID DESTINO'] || '').trim();
+                if (!fechaProg || !destino) return;
+
+                // Crear una clave por DÍA y DESTINO para agrupar
+                const dateOnly = new Date(fechaProg.getFullYear(), fechaProg.getMonth(), fechaProg.getDate());
+                const key = `${destino}|${dateOnly.toISOString()}`;
+
+                if (!shipments[key]) {
+                    shipments[key] = {
+                        destination: destino,
+                        date: dateOnly,
+                        items: []
+                    };
+                }
+                shipments[key].items.push(row);
+            });
+            return shipments;
+        }
+
+        function renderShipmentList(shipments) {
+            shipmentListContent.innerHTML = '';
+            if (Object.keys(shipments).length === 0) {
+                shipmentListContent.innerHTML = '<div class="placeholder">No se encontraron envíos válidos.</div>';
+                return;
+            }
+
+            // Ordenar por fecha
+            const sortedKeys = Object.keys(shipments).sort((a, b) => shipments[a].date - shipments[b].date);
+
+            sortedKeys.forEach(key => {
+                const shipment = shipments[key];
+                const card = document.createElement('div');
+                card.className = 'shipment-card';
+                card.dataset.shipmentKey = key; // Guardamos la clave para saber cuál se seleccionó
+                
+                card.innerHTML = `
+                    <h4>Destino: ${shipment.destination}</h4>
+                    <p><i class="fas fa-calendar-day"></i> ${shipment.date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                `;
+                
+                card.addEventListener('click', () => {
+                    // Resaltar la tarjeta activa
+                    document.querySelectorAll('.shipment-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    
+                    // Mostrar los detalles y el resumen
+                    displayShipmentDetails(shipment);
+                });
+                
+                shipmentListContent.appendChild(card);
+            });
+        }
+        
+        function displayShipmentDetails(shipment) {
+            // Generar y mostrar la tabla de detalles en el panel central
+            detailsContent.innerHTML = generateDetailsTableHTML(shipment.items);
+            // Generar y mostrar el resumen en el panel derecho
+            summaryContent.innerHTML = generateSummaryCardHTML(shipment.items);
+        }
+
+        function generateDetailsTableHTML(items) {
+            let tableRows = '';
+            items.forEach(item => {
+                const partId = String(item['ID PARTE ALTERNO'] || '').trim();
+                const destId = String(item['ID DESTINO'] || '').trim();
+                const totalQty = parseInt(item['CANT PROGRAMADA'], 10);
+                
+                const snpKey = `${partId}-${destId}`;
+                const snp = masterSnpMap.get(snpKey);
+                
+                let containersHtml = '<span title="SNP no encontrado">N/A</span>';
+                if (snp && snp > 0) {
+                    containersHtml = Math.ceil(totalQty / snp);
+                }
+
+                tableRows += `
+                    <tr>
+                        <td>${partId}</td>
+                        <td>${totalQty.toLocaleString('es')}</td>
+                        <td>${containersHtml}</td>
+                    </tr>`;
+            });
+
+            return `
+                <table>
+                    <thead>
+                        <tr><th>ID Parte Alterno</th><th>Cant. Total</th><th>Contenedores</th></tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                </table>
+            `;
+        }
+
+        function generateSummaryCardHTML(items) {
+            let totalQty = 0;
+            let totalContainers = 0;
+            const uniqueParts = new Set();
+
+            items.forEach(item => {
+                const partId = String(item['ID PARTE ALTERNO'] || '').trim();
+                const destId = String(item['ID DESTINO'] || '').trim();
+                const qty = parseInt(item['CANT PROGRAMADA'], 10);
+                totalQty += qty;
+                uniqueParts.add(partId);
+                
+                const snp = masterSnpMap.get(`${partId}-${destId}`);
+                if (snp && snp > 0) {
+                    totalContainers += Math.ceil(qty / snp);
+                }
+            });
+
+            return `
+                <div class="summary-card">
+                    <div class="summary-item">
+                        <span class="label">Total de Piezas</span>
+                        <span class="value">${totalQty.toLocaleString('es')}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Total de Contenedores</span>
+                        <span class="value">${totalContainers}</span>
+                    </div>
+                     <div class="summary-item">
+                        <span class="label"># de Partes Únicas</span>
+                        <span class="value">${uniqueParts.size}</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Iniciar la aplicación
+        initializeApp();
+    });
+    </script>
+</body>
+</html>
