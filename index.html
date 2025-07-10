@@ -25,136 +25,64 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            overflow: hidden; /* Evita el scroll del body */
-        }
-
-        .app-container {
-            display: flex;
-            height: 100vh;
-        }
-
-        /* --- Barra Lateral (Sidebar) --- */
-        .sidebar {
-            width: 60px;
-            background-color: var(--sidebar-bg);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 20px;
-            color: white;
-        }
-        .sidebar .icon {
-            font-size: 24px;
-            margin-bottom: 30px;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-        }
-        .sidebar .icon:hover, .sidebar .icon.active {
-            opacity: 1;
-        }
-
-        /* --- Contenido Principal --- */
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
             overflow: hidden;
         }
-        
-        .main-header {
-            padding: 15px 30px;
-            background-color: var(--panel-bg);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        .main-header h1 {
-            margin: 0;
-            font-size: 22px;
-            color: var(--header-color);
-        }
-        .file-input-wrapper {
-            position: relative;
-        }
-        .btn-file-input {
-            background-color: var(--accent-color);
-            color: white; padding: 10px 20px; border-radius: 5px;
-            border: none; font-size: 14px; cursor: pointer;
-        }
+
+        .app-container { display: flex; height: 100vh; }
+        .sidebar { width: 60px; background-color: var(--sidebar-bg); display: flex; flex-direction: column; align-items: center; padding-top: 20px; color: white; }
+        .sidebar .icon { font-size: 24px; margin-bottom: 30px; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
+        .sidebar .icon:hover, .sidebar .icon.active { opacity: 1; }
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .main-header { padding: 15px 30px; background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 20px; }
+        .main-header h1 { margin: 0; font-size: 22px; color: var(--header-color); }
+        .file-input-wrapper { position: relative; }
+        .btn-file-input { background-color: var(--accent-color); color: white; padding: 10px 20px; border-radius: 5px; border: none; font-size: 14px; cursor: pointer; }
         .upload-status { font-weight: bold; font-size: 14px; }
         .status-ok { color: #28a745; }
         .status-pending { color: #dc3545; }
 
-        /* --- Grid de 3 Columnas --- */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1.5fr 3fr 1.5fr; /* Proporción de columnas */
-            gap: 20px;
-            padding: 20px;
-            height: 100%;
-            overflow: hidden;
-        }
+        .content-grid { display: grid; grid-template-columns: 1.5fr 3fr 2fr; gap: 20px; padding: 20px; height: 100%; overflow: hidden; }
+        .panel { background-color: var(--panel-bg); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; }
+        .panel-header { padding: 15px; border-bottom: 1px solid var(--border-color); font-weight: bold; color: var(--header-color); }
+        .panel-content { padding: 15px; overflow-y: auto; }
+        .placeholder { display: flex; justify-content: center; align-items: center; height: 100%; color: #999; text-align: center; }
 
-        .panel {
-            background-color: var(--panel-bg);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .panel-header {
-            padding: 15px;
-            border-bottom: 1px solid var(--border-color);
-            font-weight: bold;
-            color: var(--header-color);
-        }
-        .panel-content {
-            padding: 15px;
-            overflow-y: auto; /* Permite scroll solo en el contenido */
-        }
-        .placeholder {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            color: #999;
-            text-align: center;
-        }
-
-        /* --- Tarjetas de Envío (Columna Izquierda) --- */
-        .shipment-card {
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            border-left: 4px solid var(--border-color);
-            border-radius: 5px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-        }
-        .shipment-card:hover {
-            border-color: var(--accent-color);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
-        }
-        .shipment-card.active {
-            border-left-color: #e67e22;
-            background-color: #f8f9fa;
-        }
+        .shipment-card { padding: 15px; border: 1px solid var(--border-color); border-left: 4px solid var(--border-color); border-radius: 5px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s ease-in-out; }
+        .shipment-card:hover { border-color: var(--accent-color); box-shadow: 0 4px 8px rgba(0,0,0,0.1); transform: translateY(-2px); }
+        .shipment-card.active { border-left-color: #e67e22; background-color: #f8f9fa; }
         .shipment-card h4 { margin: 0 0 5px 0; color: var(--header-color); }
         .shipment-card p { margin: 0; font-size: 14px; }
 
-        /* --- Tabla de Detalles y Resumen --- */
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e7e7e7; }
-        th { font-size: 12px; text-transform: uppercase; color: #888; }
-        
-        .summary-card { padding: 20px; background-color: #f8f9fa; border-radius: 8px; }
-        .summary-item { display: flex; justify-content: space-between; align-items: center; font-size: 16px; margin-bottom: 15px; }
-        .summary-item .label { font-weight: bold; color: var(--header-color); }
-        .summary-item .value { font-size: 20px; color: var(--accent-color); }
+        /* --- Estilos Mejorados para Tablas --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        thead th {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        tbody tr {
+            border-bottom: 1px solid var(--border-color);
+        }
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        tbody td {
+            padding: 12px 15px;
+            color: var(--text-color);
+        }
+        tbody td:not(:first-child) {
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -196,9 +124,9 @@
                     </div>
                 </div>
 
-                <!-- Columna 3: Resumen -->
+                <!-- Columna 3: Resumen por Parte -->
                 <div class="panel" id="summary-panel">
-                    <div class="panel-header">Resumen</div>
+                    <div class="panel-header">Resumen por Parte</div>
                     <div class="panel-content" id="summary-content">
                          <div class="placeholder">Seleccione un envío para ver su resumen.</div>
                     </div>
@@ -219,9 +147,9 @@
 
         // --- Almacenes de Datos ---
         let masterSnpMap = null;
-        let groupedShipments = {}; // Almacena los envíos agrupados
+        let groupedShipments = {};
 
-        // --- Lógica Principal ---
+        // --- Lógica Principal (sin cambios) ---
         async function initializeApp() {
             masterStatus.textContent = '(Cargando Maestro...)';
             try {
@@ -290,11 +218,8 @@
                 const fechaProg = row['FECHA PROGR'];
                 const destino = String(row['ID DESTINO'] || '').trim();
                 if (!fechaProg || !destino) return;
-
-                // Crear una clave por DÍA y DESTINO para agrupar
                 const dateOnly = new Date(fechaProg.getFullYear(), fechaProg.getMonth(), fechaProg.getDate());
                 const key = `${destino}|${dateOnly.toISOString()}`;
-
                 if (!shipments[key]) {
                     shipments[key] = {
                         destination: destino,
@@ -313,111 +238,112 @@
                 shipmentListContent.innerHTML = '<div class="placeholder">No se encontraron envíos válidos.</div>';
                 return;
             }
-
-            // Ordenar por fecha
             const sortedKeys = Object.keys(shipments).sort((a, b) => shipments[a].date - shipments[b].date);
-
             sortedKeys.forEach(key => {
                 const shipment = shipments[key];
                 const card = document.createElement('div');
                 card.className = 'shipment-card';
-                card.dataset.shipmentKey = key; // Guardamos la clave para saber cuál se seleccionó
-                
-                card.innerHTML = `
-                    <h4>Destino: ${shipment.destination}</h4>
-                    <p><i class="fas fa-calendar-day"></i> ${shipment.date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                `;
-                
+                card.dataset.shipmentKey = key;
+                card.innerHTML = `<h4>Destino: ${shipment.destination}</h4><p><i class="fas fa-calendar-day"></i> ${shipment.date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>`;
                 card.addEventListener('click', () => {
-                    // Resaltar la tarjeta activa
                     document.querySelectorAll('.shipment-card').forEach(c => c.classList.remove('active'));
                     card.classList.add('active');
-                    
-                    // Mostrar los detalles y el resumen
                     displayShipmentDetails(shipment);
                 });
-                
                 shipmentListContent.appendChild(card);
             });
         }
         
         function displayShipmentDetails(shipment) {
-            // Generar y mostrar la tabla de detalles en el panel central
             detailsContent.innerHTML = generateDetailsTableHTML(shipment.items);
-            // Generar y mostrar el resumen en el panel derecho
-            summaryContent.innerHTML = generateSummaryCardHTML(shipment.items);
+            summaryContent.innerHTML = generateSummaryTableHTML(shipment.items);
         }
 
+        // --- FUNCIÓN MODIFICADA: Tabla de Detalles ---
         function generateDetailsTableHTML(items) {
             let tableRows = '';
+            // Agrupar por ID PARTE ALTERNO para no repetir filas innecesariamente
+            const aggregatedItems = {};
             items.forEach(item => {
                 const partId = String(item['ID PARTE ALTERNO'] || '').trim();
-                const destId = String(item['ID DESTINO'] || '').trim();
-                const totalQty = parseInt(item['CANT PROGRAMADA'], 10);
-                
-                const snpKey = `${partId}-${destId}`;
-                const snp = masterSnpMap.get(snpKey);
-                
-                let containersHtml = '<span title="SNP no encontrado">N/A</span>';
-                if (snp && snp > 0) {
-                    containersHtml = Math.ceil(totalQty / snp);
+                if (!aggregatedItems[partId]) {
+                    aggregatedItems[partId] = {
+                        totalQty: 0,
+                        idRanSet: new Set() // Usamos un Set para evitar RANs duplicados
+                    };
                 }
+                aggregatedItems[partId].totalQty += parseInt(item['CANT PROGRAMADA'], 10);
+                const idRan = String(item['ID RAN'] || 'N/A').trim();
+                if(idRan !== 'N/A') {
+                    aggregatedItems[partId].idRanSet.add(idRan);
+                }
+            });
 
+            for (const partId in aggregatedItems) {
+                const data = aggregatedItems[partId];
+                const idRanText = data.idRanSet.size > 0 ? Array.from(data.idRanSet).join(', ') : 'N/A';
                 tableRows += `
                     <tr>
                         <td>${partId}</td>
-                        <td>${totalQty.toLocaleString('es')}</td>
-                        <td>${containersHtml}</td>
+                        <td>${idRanText}</td>
+                        <td>${data.totalQty.toLocaleString('es')}</td>
                     </tr>`;
-            });
+            }
 
             return `
                 <table>
                     <thead>
-                        <tr><th>ID Parte Alterno</th><th>Cant. Total</th><th>Contenedores</th></tr>
+                        <tr><th>ID Parte Alterno</th><th>ID RAN</th><th>Cant. Total</th></tr>
                     </thead>
                     <tbody>${tableRows}</tbody>
-                </table>
-            `;
+                </table>`;
         }
 
-        function generateSummaryCardHTML(items) {
-            let totalQty = 0;
-            let totalContainers = 0;
-            const uniqueParts = new Set();
+        // --- FUNCIÓN NUEVA/MODIFICADA: Tabla de Resumen por Parte ---
+        function generateSummaryTableHTML(items) {
+            const summaryByPart = {};
 
             items.forEach(item => {
                 const partId = String(item['ID PARTE ALTERNO'] || '').trim();
                 const destId = String(item['ID DESTINO'] || '').trim();
                 const qty = parseInt(item['CANT PROGRAMADA'], 10);
-                totalQty += qty;
-                uniqueParts.add(partId);
-                
+
+                if (!summaryByPart[partId]) {
+                    summaryByPart[partId] = {
+                        totalQty: 0,
+                        totalContainers: 0
+                    };
+                }
+
+                summaryByPart[partId].totalQty += qty;
                 const snp = masterSnpMap.get(`${partId}-${destId}`);
                 if (snp && snp > 0) {
-                    totalContainers += Math.ceil(qty / snp);
+                    summaryByPart[partId].totalContainers += Math.ceil(qty / snp);
                 }
             });
 
+            let tableRows = '';
+            const sortedParts = Object.keys(summaryByPart).sort();
+
+            for (const partId of sortedParts) {
+                const data = summaryByPart[partId];
+                tableRows += `
+                    <tr>
+                        <td>${partId}</td>
+                        <td>${data.totalQty.toLocaleString('es')}</td>
+                        <td>${data.totalContainers > 0 ? data.totalContainers : 'N/A'}</td>
+                    </tr>`;
+            }
+            
             return `
-                <div class="summary-card">
-                    <div class="summary-item">
-                        <span class="label">Total de Piezas</span>
-                        <span class="value">${totalQty.toLocaleString('es')}</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="label">Total de Contenedores</span>
-                        <span class="value">${totalContainers}</span>
-                    </div>
-                     <div class="summary-item">
-                        <span class="label"># de Partes Únicas</span>
-                        <span class="value">${uniqueParts.size}</span>
-                    </div>
-                </div>
-            `;
+                <table>
+                    <thead>
+                        <tr><th>ID Parte Alterno</th><th>Piezas</th><th>Contenedores</th></tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                </table>`;
         }
         
-        // Iniciar la aplicación
         initializeApp();
     });
     </script>
